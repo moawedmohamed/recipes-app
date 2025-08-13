@@ -1,0 +1,1 @@
+export type Tabs = 'search' | 'favourites'

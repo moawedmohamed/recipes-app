@@ -4,3 +4,8 @@ export default interface IRecipes {
     image: string,
     imageType: string
 }
+export  interface ISummary {
+    id: number,
+    title: string,
+    summary: string
+}
