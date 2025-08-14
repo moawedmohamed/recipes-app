@@ -8,7 +8,8 @@ export const getTopRatedRecipes = async () => {
     const queryParams: Record<string, string> = {
         apiKey,
         number: "10",       // عدد الوصفات المطلوب إرجاعها
-        sort: "popularity", // مثلا تصنيف حسب الشعبية (بدون params من المستخدم)
+        sort: "popularity",
+        // addRecipeNutrition: "true",// مثلا تصنيف حسب الشعبية (بدون params من المستخدم)
     };
     url.search = new URLSearchParams(queryParams).toString();
 

@@ -7,7 +7,7 @@ const Home = () => {
       <>
       <Navbar />
       <RecipeMain />
-      {/* <Products /> */}
+      <Products />
       </>
   )
 }
