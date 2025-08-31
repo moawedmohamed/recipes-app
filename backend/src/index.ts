@@ -4,10 +4,11 @@ import express from 'express'
 import cor from 'cors'
 import * as RecipeAPI from './recipe-api'
 import { PrismaClient } from '@prisma/client';
+import { testConnection } from './db';
 const app = express();
-const prismaClient = new PrismaClient
 app.use(express.json())
 app.use(cor())
+const prismaClient = new PrismaClient
 app.get('/api/recipes', async (req, res) => {
     try {
         const recipes = await RecipeAPI.getTopRatedRecipes(); // ترجع 10 وصفات مثلاً
@@ -29,21 +30,6 @@ app.get('/api/recipes/search/:recipeId/summary', async (req, res) => {
     const results = await RecipeAPI.getRecipeSummary(recipeId);
     return res.json(results)
 })
-app.post('/api/recipes/favourite', async (req, res) => {
-    const recipeId = req.body.recipeId
-    try {
-        const favouriteRecipe = await prismaClient.favoriteRecipes.create({
-            data: {
-                recipeId: recipeId
-            }
-        })
-        return res.status(201).json(favouriteRecipe)
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ error: "Oops something went wrong " })
-    }
-})
-
 app.get('/api/recipes/favourite', async (req, res) => {
     try {
         const response = await prismaClient.favoriteRecipes.findMany();
@@ -55,12 +41,40 @@ app.get('/api/recipes/favourite', async (req, res) => {
         return res.status(500).json({ error: "Oops something went wrong " })
     }
 });
+app.post('/api/recipes/favourite', async (req, res) => {
+    const { recipeId, userId } = req.body
+    try {
+        const existing = await prismaClient.favoriteRecipes.findFirst({
+            where: { recipeId, userId }
+        });
+        if (existing) {
+            return res.status(400).json({ error: "Already in favourites" });
+        }
+        const favouriteRecipe = await prismaClient.favoriteRecipes.create({
+            data: {
+                recipeId: recipeId,
+                user: {
+                    connect: { id: 2 }  // ربط favourite بالمستخدم رقم 2
+                }
+            }
+        });
+        return res.status(201).json(favouriteRecipe)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Oops something went wrong " })
+    }
+})
+
+
 app.delete('/api/recipes/favourite', async (req, res) => {
-    const recipeId = req.body.recipeId;
+    const { recipeId, userId } = req.body;
     try {
         await prismaClient.favoriteRecipes.delete({
             where: {
-                recipeId: recipeId
+                recipeId_userId: {  // الاسم يعتمد على Prisma عند إنشاء المفتاح المركب
+                    recipeId: recipeId,
+                    userId: userId
+                }
             }
         })
         return res.status(204).send();
@@ -72,5 +86,5 @@ app.delete('/api/recipes/favourite', async (req, res) => {
 const PORT: number = 5000
 app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`);
-
+    testConnection();
 })
