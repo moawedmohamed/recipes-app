@@ -1,4 +1,4 @@
-import  { useState,type ChangeEvent,type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import type IRecipes from "../interfaces";
 import RecipeCard from "./RecipeCard";
 
@@ -30,27 +30,34 @@ export default function SearchRecipes({
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="flex items-center">
         <input
           type="text"
           placeholder="Enter the Search Term..."
           required
           value={searchTerm}
           onChange={onChangeHandler}
-          className="border p-2 rounded"
+          className="border border-gray-300 px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500"
         />
-        <button type="submit" className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
+        <button
+          type="submit"
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-r-lg transition-colors duration-200"
+        >
           Submit
         </button>
       </form>
 
       {recipes.map((recipe) => {
-        const isFavourite = favouriteRecipes.some((fav) => fav.id === recipe.id);
+        const isFavourite = favouriteRecipes.some(
+          (fav) => fav.id === recipe.id
+        );
         return (
           <div key={recipe.id}>
             <RecipeCard
               recipe={recipe}
-              onFavouriteButtonClick={isFavourite ? onRemoveFavourite : onAddFavourite}
+              onFavouriteButtonClick={
+                isFavourite ? onRemoveFavourite : onAddFavourite
+              }
               isFavourite={isFavourite}
               onClick={() => {}}
             />

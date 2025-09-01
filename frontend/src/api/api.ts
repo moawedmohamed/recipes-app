@@ -1,4 +1,4 @@
-import type IRecipes from "../interfaces";
+import type { FavouritePayload } from "../types";
 
 export const getProducts = async () => {
     try {
@@ -35,7 +35,7 @@ export const getRecipeSummary = async (recipeId: string) => {
     return res.json();
 }
 export const getFavouriteRecipes = async () => {
-    const url = new URL('http://localhost:5000/api/recipes/favourite');
+    const url = new URL('http://localhost:5000/api/recipes/favourite?userId=2');
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -43,35 +43,23 @@ export const getFavouriteRecipes = async () => {
     return response.json()
 }
 
-export const addFavouriteRecipe = async (recipe: IRecipes) => {
-    const url = new URL('http://localhost:5000/api/recipes/favourite');
-    const body = {
-        recipeId: recipe.id
-    }
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body)
-    })
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-}
-export const removeFavouriteRecipe = async (recipe: IRecipes) => {
-    const url = new URL('http://localhost:5000/api/recipes/favourite');
-    const body = {
-        recipeId: recipe.id
-    }
-    const response = await fetch(url, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    })
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-}
+export const addFavouriteRecipe = async ({ recipeId, userId }: FavouritePayload) => {
+  const url = new URL('http://localhost:5000/api/recipes/favourite?userId=2');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ recipeId, userId }),
+  });
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+};
+
+// remove
+export const removeFavouriteRecipe = async ({ recipeId, userId }: FavouritePayload) => {
+  const url = new URL('http://localhost:5000/api/recipes/favourite?userId=2');
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ recipeId, userId }),
+  });
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+};

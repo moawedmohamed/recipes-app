@@ -13,7 +13,7 @@ export default function Login() {
       setError("Please enter a valid email");
       return;
     }
-    const res = await login({ email, password });
+    const res = await login({  email, password });
     if (!res.success) {
       setError("You don't have an account. Please sign up first.");
     } else {
