@@ -7,14 +7,14 @@ const prismaClient = new PrismaClient();
 // * sign up function
 export const signup = async (req: Request, res: Response) => {
     try {
-        const { name, email, password } = req.body;
+        const { username, email, password } = req.body;
         const existingUser = await prismaClient.user.findUnique({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ success: false, message: "Email already taken" });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await prismaClient.user.create({
-            data: { name, email, password: hashedPassword },
+            data: { name: username, email, password: hashedPassword },
             select: { id: true, name: true, email: true, createdAt: true } // بدون كلمة المرور
         });
         return res.status(201).json({
@@ -23,6 +23,7 @@ export const signup = async (req: Request, res: Response) => {
             data: user
         });
     } catch (error) {
+        console.error("Signup error:", error);
         return res.status(500).json({ error: "an error occurred on the server" })
     }
 }
@@ -30,7 +31,7 @@ export const signup = async (req: Request, res: Response) => {
 //* login function
 export const login = async (req: Request, res: Response) => {
     try {
-        const { name, email, password } = req.body
+        const { email, password } = req.body
         const existingUser = await prismaClient.user.findUnique({ where: { email } });
         if (!existingUser) {
             return res.status(400).json({ success: false, message: "No account found, please sign up first" });
@@ -56,7 +57,7 @@ export const getProfile = async (req: Request, res: Response) => {
         const userId = (req as any).userId;
         const user = await prismaClient.user.findUnique({
             where: { id: userId },
-            select: { id: true, name: true, email: true, password: false, createdAt: true }
+            select: { id: true, name: true, email: true, createdAt: true }
         })
         if (!user) {
             return res.status(404).json({ success: false, message: "User Not Found " })
@@ -64,6 +65,7 @@ export const getProfile = async (req: Request, res: Response) => {
         return res.status(200).json(user)
 
     } catch (error) {
+        console.error("Signup error:", error);
         return res.status(500).json({ error: "an error occurred on the server" })
     }
 }

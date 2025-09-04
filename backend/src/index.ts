@@ -5,9 +5,14 @@ import cor from 'cors'
 import * as RecipeAPI from './recipe-api'
 import { PrismaClient } from '@prisma/client';
 import { testConnection } from './db';
+import { verifyToken } from './auth/auth.middleware';
+import { AuthRequest } from './interfaces';
+import router from './auth/auth.routes';
+import { connectRedis } from './redis';
 const app = express();
 app.use(express.json())
 app.use(cor())
+app.use("/api/auth", router);
 const prismaClient = new PrismaClient
 app.get('/api/recipes', async (req, res) => {
     try {
@@ -30,9 +35,10 @@ app.get('/api/recipes/search/:recipeId/summary', async (req, res) => {
     const results = await RecipeAPI.getRecipeSummary(recipeId);
     return res.json(results)
 })
-app.get('/api/recipes/favourite', async (req, res) => {
+app.get('/api/recipes/favourite', verifyToken, async (req, res) => {
     try {
-        const response = await prismaClient.favoriteRecipes.findMany();
+        const userId = (req as AuthRequest).userId;
+        const response = await prismaClient.favoriteRecipes.findMany({ where: { userId } });
         const recipeIDs = response.map((recipe) => recipe.recipeId.toString())
         const favourites = await RecipeAPI.getFavouriteRecipeByIDs(recipeIDs)
         return res.json(favourites)
@@ -41,8 +47,9 @@ app.get('/api/recipes/favourite', async (req, res) => {
         return res.status(500).json({ error: "Oops something went wrong " })
     }
 });
-app.post('/api/recipes/favourite', async (req, res) => {
-    const { recipeId, userId } = req.body
+app.post('/api/recipes/favourite', verifyToken, async (req, res) => {
+    const userId = (req as AuthRequest).userId;
+    const { recipeId } = req.body
     try {
         const existing = await prismaClient.favoriteRecipes.findFirst({
             where: { recipeId, userId }
@@ -54,7 +61,7 @@ app.post('/api/recipes/favourite', async (req, res) => {
             data: {
                 recipeId: recipeId,
                 user: {
-                    connect: { id: 2 }  // ربط favourite بالمستخدم رقم 2
+                    connect: { id: userId }  // ربط favourite بالمستخدم رقم 2
                 }
             }
         });
@@ -66,8 +73,12 @@ app.post('/api/recipes/favourite', async (req, res) => {
 })
 
 
-app.delete('/api/recipes/favourite', async (req, res) => {
-    const { recipeId, userId } = req.body;
+app.delete('/api/recipes/favourite', verifyToken, async (req: AuthRequest, res) => {
+    const userId = req.userId;
+    const { recipeId } = req.body;
+    if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+    }
     try {
         await prismaClient.favoriteRecipes.delete({
             where: {
@@ -87,4 +98,5 @@ const PORT: number = 5000
 app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`);
     testConnection();
+    connectRedis(); 
 })

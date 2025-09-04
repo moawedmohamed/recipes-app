@@ -1,16 +1,13 @@
-import { Pool } from 'pg'
-import dotenv from "dotenv"
+// db.ts
+import { PrismaClient } from '@prisma/client';
 
-export const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-})
+export const prisma = new PrismaClient();
+
 export const testConnection = async () => {
     try {
-        const client = await pool.connect();
-        console.log("✅ Database connected successfully!");
-        client.release();
+        await prisma.$queryRaw`SELECT 1`; // اختبار الاتصال
+        console.log("✅ Database connected successfully with Prisma!");
     } catch (error) {
-        console.log('Database connection failed', error);
+        console.error("Database connection failed with Prisma", error);
     }
-} 
+};
