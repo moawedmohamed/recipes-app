@@ -6,10 +6,13 @@ import {
   Bars3Icon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
+import { useAuth } from "../../context/AuthContext";
 import logo from "../../images/logo.png";
+
 const Navbar = () => {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, logout,isLoading } = useAuth();
 
   const toggleMenu = (menu: string) => {
     setOpenMenu(openMenu === menu ? null : menu);
@@ -105,20 +108,60 @@ const Navbar = () => {
           ))}
         </ul>
 
-        {/* Login & Signup Buttons for Desktop */}
+        {/* Desktop Auth */}
         <div className="hidden md:flex space-x-4">
-          <Link
-            to="/login"
-            className="px-4 py-2 border border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white transition"
-          >
-            Login
-          </Link>
-          <Link
-            to="/signup"
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-          >
-            Sign Up
-          </Link>
+          {isLoading ? (
+            <div className="px-4 py-2 text-gray-400">Loading...</div>
+          ) : !user ? (
+            <>
+              <Link
+                to="/login"
+                className="px-4 py-2 border border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white transition"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+              >
+                Sign Up
+              </Link>
+            </>
+          ) : (
+            <div className="relative">
+              <button
+                onClick={() => toggleMenu("user")}
+                className="flex items-center space-x-2"
+              >
+                <img
+                  src={`https://ui-avatars.com/api/?name=${user.email}`}
+                  alt="user"
+                  className="w-8 h-8 rounded-full"
+                />
+                <ChevronDownIcon className="w-4 h-4" />
+              </button>
+              {openMenu === "user" && (
+                <ul className="absolute right-0 mt-2 bg-white shadow-md rounded-md w-40">
+                  <li>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={logout}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -176,21 +219,46 @@ const Navbar = () => {
                 )}
               </li>
             ))}
-            <li className="border-t mt-2 flex space-x-4 px-4 py-3">
-              <Link
-                to="/login"
-                onClick={closeMobile}
-                className="flex-1 text-center px-4 py-2 border border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white transition"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                onClick={closeMobile}
-                className="flex-1 text-center px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-              >
-                Sign Up
-              </Link>
+
+            {/* Mobile Auth Section */}
+            <li className="border-t mt-2 flex flex-col px-4 py-3 space-y-2">
+              {!user ? (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={closeMobile}
+                    className="w-full text-center px-4 py-2 border border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white transition"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={closeMobile}
+                    className="w-full text-center px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/profile"
+                    onClick={closeMobile}
+                    className="w-full text-center px-4 py-2 hover:bg-gray-100 rounded transition"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      closeMobile();
+                    }}
+                    className="w-full text-center px-4 py-2 hover:bg-gray-100 rounded transition"
+                  >
+                    Logout
+                  </button>
+                </>
+              )}
             </li>
           </ul>
         </div>

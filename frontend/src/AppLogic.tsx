@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as api from "./api/api";
 import type IRecipes from "./interfaces";
 
-const userId = 2; // لاحقًا يمكن استبداله بجلسة المستخدم
+const userId = '2'; // لاحقًا يمكن استبداله بجلسة المستخدم
 
 function AppLogic() {
   const [recipes, setRecipes] = useState<IRecipes[]>([]);
@@ -24,11 +24,11 @@ function AppLogic() {
     fetchDefaults();
   }, []);
 
-  // جلب المفضلات من DB
+  // جلب المفضلات من DB 
   useEffect(() => {
     async function fetchFavouriteRecipe() {
       try {
-        const favourites = await api.getFavouriteRecipes();
+        const favourites = await api.getFavouriteRecipes(userId);
         // حفظ IDs فقط لتسهيل التحقق من اللون
         setFavouriteRecipes(favourites.map((r: IRecipes) => r.id));
       } catch (error) {
