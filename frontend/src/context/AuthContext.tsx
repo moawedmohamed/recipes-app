@@ -2,9 +2,10 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { token } from "../utils/constants";
 
 interface User {
-  id: string;
+  id: number;
   email: string;
 }
 
@@ -19,7 +20,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // دالة لجلب بيانات المستخدم من الباك إند
 const fetchUser = async (): Promise<User | null> => {
-  const token = localStorage.getItem("token");
   if (!token) return null;
 
   const { data } = await axios.get("http://localhost:5000/api/auth/me", {

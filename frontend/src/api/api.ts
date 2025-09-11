@@ -1,21 +1,25 @@
 import axios from "axios";
 import type { FavouritePayload } from "../types";
 
-export const getProducts = async (token: string) => {
+export const getProducts = async (token?: string) => {
+    const url = new URL("http://localhost:5000/api/recipes");
     try {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-        const url = new URL('http://localhost:5000/api/recipes');
-        const response = await axios.get(url.toString(), {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        return response.data;
-    } catch (error) {
+        const response = await axios.get(url.toString(), { headers });
+        return response.data; // backend يرجع: recipes + favouriteIds لو مسجّل دخول
+    } catch (error: any ) {
         console.error("Error fetching products:", error);
+        // لو 401 Unauthorized، ممكن backend يرد هنا كـ empty array أو top recipes
+        if (error.response?.status === 401) {
+            // fallback: رجع أول 10 recipes عامة
+            const fallback = await axios.get(url.toString());
+            return fallback.data;
+        }
         throw error;
     }
-}
+};
+
 
 export const searchRecipes = async (searchTerm: string, page: number, token: string) => {
     const baseURL = new URL('http://localhost:5000/api/recipes/search');
@@ -38,20 +42,22 @@ export const getRecipeSummary = async (recipeId: string, token: string) => {
     });
     return res.data;
 }
-export const getFavouriteRecipes = async (userId: string, token: string) => {
+export const getFavouriteRecipes = async (userId: number, token: string) => {
     const url = new URL(`http://localhost:5000/api/recipes/favourite?userId=${userId}`);
     const response = await axios.get(url.toString(), {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     });
+    console.log(response);
+
     return response.data;
 }
 
-export const addFavouriteRecipe = async ({ recipeId, userId, token }: FavouritePayload) => {
-    const url = new URL(`http://localhost:5000/api/recipes/favourite?userId=${userId}`);
+export const addFavouriteRecipe = async ({ recipeId, token }: FavouritePayload) => {
+    const url = new URL(`http://localhost:5000/api/recipes/favourite`);
     const response = await axios.post(url.toString(),
-        { recipeId, userId },
+        { recipeId },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -59,18 +65,20 @@ export const addFavouriteRecipe = async ({ recipeId, userId, token }: FavouriteP
             }
         }
     );
+    console.log(response);
+
     return response.data;
 };
 
 // remove
-export const removeFavouriteRecipe = async ({ recipeId, userId, token }: FavouritePayload) => {
-    const url = new URL(`http://localhost:5000/api/recipes/favourite?userId=${userId}`);
+export const removeFavouriteRecipe = async ({ recipeId, token }: FavouritePayload) => {
+    const url = new URL(`http://localhost:5000/api/recipes/favourite`);
     const response = await axios.delete(url.toString(), {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        data: { recipeId, userId }
+        data: { recipeId }
     });
     return response.data;
 };

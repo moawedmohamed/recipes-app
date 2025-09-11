@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./context/AuthContext";
 import Profile from "./components/auth/Profile";
+import FavouriteRecipes from "./pages/FavouriteRecipes";
 const App = () => {
   const isAuthenticated = Boolean(localStorage.getItem("token")); // example
   const queryClient = new QueryClient({
@@ -23,19 +24,20 @@ const App = () => {
         <AuthProvider>
           <ToastContainer position="top-center" autoClose={3000} />
           <Routes>
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={<Home />} />
             <Route
               path="/profile"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated}>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/favourite"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <FavouriteRecipes />
                 </ProtectedRoute>
               }
             />

@@ -1,17 +1,25 @@
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import type IRecipes from "../interfaces";
+import { useToggleFavourite } from "../hooks/useToggleFavourite ";
+import { useAuth } from "../context/AuthContext";
+const token = localStorage.getItem("token");
 interface IProps {
   recipe: IRecipes;
   onClick: () => void;
-  onFavouriteButtonClick: (recipe: IRecipes) => void;
   isFavourite: boolean;
 }
-const RecipeCard = ({
-  recipe,
-  onClick,
-  onFavouriteButtonClick,
-  isFavourite,
-}: IProps) => {
+const RecipeCard = ({ recipe, onClick, isFavourite }: IProps) => {
+  const { user } = useAuth();
+  console.log(user);
+
+  const { toggleFavourite } = useToggleFavourite(user?.id ?? 0, token ?? "");
+  if (!user) {
+    return;
+  }
+  if (!token) {
+    console.log("token not found");
+    return;
+  }
   return (
     <div className="recipe-card" onClick={onClick}>
       <img src={recipe.image} alt="" />
@@ -19,7 +27,7 @@ const RecipeCard = ({
         <span
           onClick={(e) => {
             e.stopPropagation();
-            onFavouriteButtonClick(recipe);
+            toggleFavourite(recipe.id, isFavourite);
           }}
         >
           {isFavourite ? (

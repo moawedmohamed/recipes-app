@@ -1,22 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import * as api from "../api/api"
-import type IRecipes from "../interfaces";
+import * as api from "../api/api";
 import { token } from "../utils/constants";
 
-
 const fetchFavouriteRecipe = async (userId: number) => {
+    // جلب البيانات كاملة من الـ backend
     const favourites = await api.getFavouriteRecipes(userId, token ?? "");
-    console.log(favourites);
-    return favourites.results.map((r: IRecipes) => ({ recipeId: r.id, ...r }))
+    console.log("Fetched favourites:", favourites);
+    // رجّع البيانات كلها
+    return favourites.results;
 }
 
-
-const useFavouriteRecipe = (userId: number) => {
+const useFavouriteRecipeList = (userId: number) => {
     return useQuery({
         queryKey: ['favourites', userId],
         queryFn: () => fetchFavouriteRecipe(userId),
         enabled: !!userId,
-    })
+    });
 }
 
-export default useFavouriteRecipe;
+export default useFavouriteRecipeList;

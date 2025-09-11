@@ -37,6 +37,7 @@ const Navbar = () => {
       children: [
         { label: "All Recipes", path: "/all-recipes" },
         { label: "Categories", path: "/categories" },
+        { label: "favourites", path: "/favourite" },
       ],
     },
     {
@@ -109,7 +110,7 @@ const Navbar = () => {
         </ul>
 
         {/* Desktop Auth */}
-        <div className="hidden md:flex space-x-4">
+        <div className="hidden md:flex space-x-4 ml-20">
           {isLoading ? (
             <div className="px-4 py-2 text-gray-400">Loading...</div>
           ) : !user ? (
@@ -221,13 +222,13 @@ const Navbar = () => {
             ))}
 
             {/* Mobile Auth Section */}
-            <li className="border-t mt-2 flex flex-col px-4 py-3 space-y-2">
+            <li className="border-t mt-2 flex flex-col px-4  py-3 space-y-2">
               {!user ? (
                 <>
                   <Link
                     to="/login"
                     onClick={closeMobile}
-                    className="w-full text-center px-4 py-2 border border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white transition"
+                    className="w-full text-center px-4 py-2  border border-green-500 text-green-500 rounded hover:bg-green-500 hover:text-white transition"
                   >
                     Login
                   </Link>
