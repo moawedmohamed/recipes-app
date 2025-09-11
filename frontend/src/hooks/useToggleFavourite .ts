@@ -10,16 +10,7 @@ export const useToggleFavourite = (userId: number, token: string) => {
             api.addFavouriteRecipe({ recipeId, token }), // ✅ ابعت بس id + token في الهيدر
         onSuccess: (res) => {
             const { favourite, message } = res; // backend بيرجع كده بعد التعديل الأخير
-            queryClient.setQueryData(['favourite', userId], (oldData: any[] | undefined) => {
-                if (!oldData) return favourite ? [favourite] : [];
-                if (favourite) {
-                    const exists = oldData.some(r => r.recipeId === favourite.recipeId);
-                    return exists
-                        ? oldData.filter(r => r.recipeId !== favourite.recipeId)
-                        : [...oldData, favourite];
-                }
-                return oldData;
-            });
+            queryClient.invalidateQueries({ queryKey: ['favourites', userId] });
             toast.success(message);
         },
         onError: () => {
