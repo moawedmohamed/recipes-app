@@ -40,7 +40,7 @@ export const login = async (req: Request, res: Response) => {
         if (!isPasswordValid) {
             return res.status(400).json({ success: false, message: "the email or password is not correct" });
         }
-        const token = jwt.sign({ userId: existingUser.id }, process.env.JWT_SECRET as string, {
+        const token = jwt.sign({ userId: existingUser.id, jti: crypto.randomUUID() }, process.env.JWT_SECRET as string, {
             expiresIn: "7d",
         });
         return res.status(200).json({
@@ -54,7 +54,7 @@ export const login = async (req: Request, res: Response) => {
 }
 export const getProfile = async (req: Request, res: Response) => {
     try {
-        const userId = (req as any).userId;
+        const userId = Number((req as any).userId);
         const user = await prismaClient.user.findUnique({
             where: { id: userId },
             select: { id: true, name: true, email: true, createdAt: true }

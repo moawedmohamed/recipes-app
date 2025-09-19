@@ -13,6 +13,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model cartItem {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  recipeId  Int
+  title     String
+  image     String
+  price     Float
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+}
+
 model favoriteRecipes {
   id       Int  @id @default(autoincrement())
   recipeId Int
@@ -30,4 +42,5 @@ model User {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   favoriteRecipes favoriteRecipes[]
+  cartItem        cartItem[]
 }

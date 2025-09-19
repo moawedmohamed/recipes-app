@@ -10,9 +10,11 @@ import { AuthRequest } from './interfaces';
 import router from './auth/auth.routes';
 import { connectRedis } from './redis';
 import recipeRouter from './routes/recipe';
+import morgan from 'morgan'
 const app = express();
 app.use(express.json())
 app.use(cor())
+app.use(morgan("dev"))
 app.use("/api/auth", router);
 app.use('/api/recipes', recipeRouter)
 
