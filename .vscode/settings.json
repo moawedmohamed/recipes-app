@@ -2,5 +2,9 @@
     "cSpell.words": [
         "autoincrement",
         "favourites"
-    ]
+    ],
+    "Codegeex.SidebarUI.LanguagePreference": "English",
+    "Codegeex.CommitMessage.LanguagePreference": "English",
+    "Codegeex.Chat.LanguagePreference": "English",
+    "Codegeex.Comment.LanguagePreference": "English"
 }
