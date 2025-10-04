@@ -1,7 +1,7 @@
 // Products.tsx
 import { motion } from "framer-motion";
 import { FaSearch, FaHeart } from "react-icons/fa";
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 // import AppLogic from "../AppLogic";
 import { useDefaultRecipes } from "../hooks/useDefaultRecipes";
 import type IRecipes from "../interfaces";
@@ -12,32 +12,39 @@ import { token } from "./../utils/constants";
 import useSearchRecipes from "../hooks/useSearchRecipes";
 import { useToggleFavourite } from "../hooks/useToggleFavourite ";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import "../App.css";
+import { useAddToCart } from "../hooks/useAddToCart";
+import type { CartItem, Recipe } from "../types";
 const Products = memo(() => {
-  const { user } = useAuth();
-  const { data: defaultRecipes, isLoading: defaultLoading } =
-    useDefaultRecipes();
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: searchedRecipes } = useSearchRecipes(searchTerm);
-  const { data: favouriteData } = useFavouriteRecipe(user?.id ?? 0);
-  const { addFavouriteMutation } = useToggleFavourite(
-    user?.id ?? 0,
-    token ?? ""
+  const { data: searchedRecipes, refetch } = useSearchRecipes(searchTerm);
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      refetch();
+    }
+  }, [searchTerm, refetch]);
+
+  const { mutate: addToCart, data: cartData } = useAddToCart();
+
+  const { user } = useAuth();
+  const { data: defaultRecipes, isLoading: defaultLoading } = useDefaultRecipes(
+    { page: 1, limit: 20 }
   );
+  const { data: favouriteData } = useFavouriteRecipe(user?.id ?? 0);
+  const { toggleFavourite } = useToggleFavourite(user?.id ?? 0, token ?? "");
   const navigate = useNavigate();
   const handleSearch = () => {
     console.log("Searching for:", searchTerm);
   };
   // const { handleSearch, toggleFavouriteRecipe, favouriteRecipes } = AppLogic();
-  const allSearchedRecipes = searchedRecipes?.pages.flat() ?? [];
-  console.log(favouriteData);
+  const allSearchedRecipes: Recipe[] = searchedRecipes?.pages.flat() ?? [];
+  console.log(searchedRecipes);
 
-  const displayedRecipes =
-    allSearchedRecipes.length > 0 ? allSearchedRecipes : defaultRecipes ?? [];
-  // if (!token) {
-  //   console.log("token not found ");
-  //   return;
-  // }
+  // const displayedRecipes =
+  //   allSearchedRecipes.length > 0 ? allSearchedRecipes : defaultRecipes ?? [];
+
+  console.log(searchedRecipes);
   const isUserAuthorized = !!user?.id && !!token;
   const handleFavouriteClick = (recipeId: number) => {
     if (!isUserAuthorized) {
@@ -45,9 +52,19 @@ const Products = memo(() => {
       navigate("/login"); // أو استخدم useNavigate لو React Router
       return;
     }
-    addFavouriteMutation.mutate(recipeId);
+    toggleFavourite.mutate(recipeId);
   };
-  // if (!user?.id) return null;
+  const handleAddToCart = (product: Recipe) => {
+    console.log("Adding to cart:", product);
+    addToCart({
+      userId: user?.id ?? 0,
+      recipeId: product.id,
+      title: product.title,
+      image: product.image,
+      price: product.pricePerServing,
+      quantity: 1,
+    });
+  };
   return (
     <>
       {/* Search bar */}
@@ -78,50 +95,78 @@ const Products = memo(() => {
         {defaultLoading ? (
           <Spinner />
         ) : (
-          displayedRecipes?.[0]?.results?.map(
-            (product: IRecipes, index: number) => (
-              <motion.div
-                key={product.title}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 group relative"
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true, amount: 0.2 }}
-              >
-                {/* Product image */}
-                <div className="relative">
+          defaultRecipes?.map((product: Recipe, index: number) => (
+            <motion.div
+              // key={product.results.id}
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300 group relative"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              {/* Product image */}
+              <div className="relative group">
+                {/* Product Image */}
+                <Link to={`/product/${product.id}`}>
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="w-full h-64 object-cover"
+                    className="w-full h-64 object-cover rounded-lg shadow"
                   />
-                  {/* Favourite button */}
+                </Link>
+
+                {/* Dark Overlay */}
+                <div
+                  className="
+                          absolute inset-0 bg-black 
+                          opacity-0 group-hover:opacity-40
+                          transition-opacity duration-300 rounded-lg
+                        "
+                ></div>
+
+                {/* Add to Cart button */}
+                <div
+                  className="
+                              absolute inset-0 flex items-center justify-center
+                              opacity-0 group-hover:opacity-100
+                              translate-y-5 group-hover:translate-y-0
+                              transition-all duration-300
+                            "
+                >
                   <button
-                    className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:bg-red-100 transition"
-                    onClick={() => handleFavouriteClick(product.id)}
+                    onClick={() => handleAddToCart(product)}
+                    className="px-4 py-2 border-2 border-green-500 text-green-500 font-semibold rounded-lg shadow hover:bg-green-500 hover:text-white transition"
                   >
-                    <FaHeart
-                      className={
-                        isUserAuthorized &&
-                        favouriteData?.some(
-                          (r: { recipeId: number }) => r.recipeId === product.id
-                        )
-                          ? "text-red-500"
-                          : "text-gray-400"
-                      }
-                    />
+                    Add to cart
                   </button>
                 </div>
 
-                {/* Title */}
-                <div className="p-4">
-                  <h1 className="text-lg font-semibold text-gray-800 truncate">
-                    {product.title}
-                  </h1>
-                </div>
-              </motion.div>
-            )
-          )
+                {/* Favourite button */}
+                <button
+                  className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:bg-red-100 transition"
+                  onClick={() => handleFavouriteClick(product.id)}
+                >
+                  <FaHeart
+                    className={
+                      isUserAuthorized &&
+                      favouriteData?.some(
+                        (r: { recipeId: number }) => r.recipeId === product.id
+                      )
+                        ? "text-red-500"
+                        : "text-gray-400"
+                    }
+                  />
+                </button>
+              </div>
+
+              {/* Title */}
+              <div className="p-4">
+                <h1 className="text-lg font-semibold text-gray-800 truncate">
+                  {product.title}
+                </h1>
+              </div>
+            </motion.div>
+          ))
         )}
       </div>
     </>

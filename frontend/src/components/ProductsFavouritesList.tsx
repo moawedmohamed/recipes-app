@@ -13,10 +13,7 @@ const ProductsList = () => {
   const { user } = useAuth();
 
   const { data, isLoading } = useFavouriteRecipeList(user?.id ?? 0);
-  const { addFavouriteMutation } = useToggleFavourite(
-    user?.id ?? 0,
-    token ?? ""
-  );
+  const { toggleFavourite } = useToggleFavourite(user?.id ?? 0, token ?? "");
   console.log(data);
   if (!token) {
     console.log("token not found ");
@@ -52,7 +49,7 @@ const ProductsList = () => {
                 {/* Favourite button */}
                 <button
                   className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:bg-red-100 transition"
-                  onClick={() => addFavouriteMutation.mutate(product.id)}
+                  onClick={() => toggleFavourite.mutate(product.id)}
                 >
                   <FaHeart
                     className={

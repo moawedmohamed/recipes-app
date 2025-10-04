@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 
 export default interface IRecipes {
+    results: any;
     id: number,
     title: string,
     image: string,

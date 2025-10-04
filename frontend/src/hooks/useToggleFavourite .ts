@@ -5,11 +5,11 @@ import { toast } from 'react-toastify';
 export const useToggleFavourite = (userId: number, token: string) => {
     const queryClient = useQueryClient();
 
-    const addFavouriteMutation = useMutation({
+    const toggleFavourite = useMutation({
         mutationFn: (recipeId: number) =>
             api.addFavouriteRecipe({ recipeId, token }), // ✅ ابعت بس id + token في الهيدر
         onSuccess: (res) => {
-            const { favourite, message } = res; // backend بيرجع كده بعد التعديل الأخير
+            const { message } = res; // backend بيرجع كده بعد التعديل الأخير
             queryClient.invalidateQueries({ queryKey: ['favourites', userId] });
             toast.success(message);
         },
@@ -18,7 +18,7 @@ export const useToggleFavourite = (userId: number, token: string) => {
         },
     });
 
-    return { addFavouriteMutation };
+    return { toggleFavourite };
 };
 
 

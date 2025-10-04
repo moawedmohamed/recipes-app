@@ -35,7 +35,7 @@ const Navbar = () => {
     {
       label: "Recipes",
       children: [
-        { label: "All Recipes", path: "/all-recipes" },
+        { label: "All Recipes", path: "/allRecipes" },
         { label: "Categories", path: "/categories" },
         { label: "favourites", path: "/favourite" },
       ],

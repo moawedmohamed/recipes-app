@@ -27,7 +27,7 @@ const RecipeCard = ({ recipe, onClick, isFavourite }: IProps) => {
         <span
           onClick={(e) => {
             e.stopPropagation();
-            toggleFavourite(recipe.id, isFavourite);
+            toggleFavourite.mutate(recipe.id);
           }}
         >
           {isFavourite ? (

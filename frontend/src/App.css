@@ -45,9 +45,30 @@
   cursor: pointer;
 }
 
-.tabs{
+.tabs {
   display: flex;
   gap: 2em;
   cursor: pointer;
-  
+
+}
+
+.add-cart {
+  /* display: none; */
+}
+
+.add-cart:hover {
+
+  /* display: none; */
+  background-color: black;
+}
+
+.add-cart {
+
+  margin: 120px;
+  position: absolute;
+  display: flex;
+  background-color: red;
+  justify-content: center;
+  align-items: center;
+  border-radius: 30%;
 }

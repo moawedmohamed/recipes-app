@@ -5,6 +5,7 @@ import image2 from "../images/sliderA_02.jpg";
 import image3 from "../images/sliderA_03.jpg";
 import image4 from "../images/sliderA_04.jpg";
 import image5 from "../images/sliderA_05.jpg";
+import { Link } from "react-router-dom";
 
 const recipes = [
   {
@@ -142,7 +143,7 @@ const RecipeMain = () => {
             </div>
 
             <button className="mt-6 px-5 py-2 border border-white text-white font-semibold rounded hover:bg-white hover:text-green-600 transition">
-              View Recipe
+              <Link to={"/allRecipes"}> View Recipe</Link>
             </button>
           </motion.div>
         </AnimatePresence>
